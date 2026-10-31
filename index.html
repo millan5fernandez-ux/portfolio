@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Millán Fernandez | Portfolio</title>
+<meta name="description" content="Portfolio de Millán Fernandez, técnico en Sistemas Microinformáticos y Redes y estudiante de ASIR en Huesca.">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: 'rgb(var(--bg) / <alpha-value>)',
+          fg: 'rgb(var(--fg) / <alpha-value>)',
+          primary: 'rgb(var(--primary) / <alpha-value>)',
+          muted: 'rgb(var(--muted) / <alpha-value>)',
+          card: 'rgb(var(--card) / <alpha-value>)',
+          soft: 'rgb(var(--soft) / <alpha-value>)',
+          line: 'rgb(var(--line) / <alpha-value>)',
+          ink: '#0b0b0b',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+          sans: ['"Space Grotesk"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'Menlo', 'monospace'],
+        },
+      },
+    },
+  }
+</script>
+<script>try { var s = localStorage.getItem('theme'); if (s === 'dark' || s === 'light') document.documentElement.dataset.theme = s; } catch (e) {}</script>
+<style>
+  /* Colores como canales RGB para que Tailwind pueda aplicar opacidad (bg-bg/70, border-fg/30...) */
+  :root { --bg: 241 240 234; --fg: 11 11 11; --primary: 255 59 59; --muted: 111 111 104; --card: 255 255 255; --soft: 235 234 227; --line: 211 210 201; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: 14 14 12; --fg: 241 240 234; --muted: 160 160 150; --card: 26 26 23; --soft: 36 36 32; --line: 54 54 48; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: 14 14 12; --fg: 241 240 234; --muted: 160 160 150; --card: 26 26 23; --soft: 36 36 32; --line: 54 54 48; color-scheme: dark; }
+  /* La sección roja de contacto mantiene texto oscuro en los dos temas */
+  #contacto { --fg: 11 11 11; --bg: 241 240 234; --line: 211 210 201; }
+  html { scroll-behavior: smooth; }
+  html, body { overflow-x: clip; }
+  body {
+    background-color: rgb(var(--bg));
+    background-image: linear-gradient(rgb(var(--fg) / .045) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--fg) / .045) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: rgb(var(--fg));
+    font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  }
+  .tracking-widest, [class*="tracking-[0."] { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; }
+  :focus-visible { outline: 2px solid #ff3b3b; outline-offset: 2px; }
+  ::selection { background: #ff3b3b; color: #0b0b0b; }
+  .text-outline, .text-outline-dark { color: #ff3b3b; }
+  .reveal { transform: translateY(32px); transition: transform .9s cubic-bezier(.16,1,.3,1); }
+  .reveal.is-visible { transform: none; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .marquee { animation: marquee 40s linear infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .caret { animation: blink 1s steps(1) infinite; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .rise { animation: rise .5s ease-out; }
+  .grain { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"); }
+  .job-panel { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .5s ease, opacity .5s ease; }
+  .job.open .job-panel { grid-template-rows: 1fr; opacity: 1; }
+  .job.open .job-icon { transform: rotate(45deg); background: #ff3b3b; border-color: #ff3b3b; color: #0b0b0b; }
+  .job.open .job-name { color: #ff3b3b; }
+  #scene { touch-action: pan-y; }
+  #scene canvas { display: block; width: 100%; height: 100%; }
+  header.site { padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { transform: none; transition: none; }
+    .marquee, .caret, .rise, .animate-ping { animation: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+
+</head>
+<body>
+<div class="antialiased">
+
+  <!-- Header -->
+  <header class="site fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/70 backdrop-blur-xl">
+    <div class="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5 md:px-10">
+      <a href="#inicio" class="flex items-center gap-3" aria-label="Volver al inicio">
+        <span class="flex h-9 w-9 items-center justify-center rounded-[2px] bg-primary"><svg class="h-6 w-6" viewBox="0 0 32 32" fill="#0b0b0b" aria-hidden="true"><path d="M7 25V7h4l5 8 5-8h4v18h-4V14.5l-4.2 6.6h-1.6L11 14.5V25z"/><rect x="25" y="3" width="4" height="4"/></svg></span>
+        <span class="hidden text-xs uppercase leading-tight tracking-widest sm:block">Millán<br />Fernandez</span>
+      </a>
+      <nav aria-label="Principal" class="hidden lg:block">
+        <ul class="flex items-center gap-8 text-xs uppercase tracking-widest text-muted">
+          <li><a href="#sobre-mi" class="hover:text-fg"><span class="text-primary">// 01</span> Sobre mí</a></li>
+          <li><a href="#experiencia" class="hover:text-fg"><span class="text-primary">// 02</span> Experiencia</a></li>
+          <li><a href="#formacion" class="hover:text-fg"><span class="text-primary">// 03</span> Formación</a></li>
+          <li><a href="#proyectos" class="hover:text-fg"><span class="text-primary">// 04</span> Proyectos</a></li>
+          <li><a href="#habilidades" class="hover:text-fg"><span class="text-primary">// 05</span> Habilidades</a></li>
+        </ul>
+      </nav>
+      <div class="flex items-center gap-3">
+        <button id="theme-btn" type="button" class="flex h-10 w-10 items-center justify-center border border-line transition-colors hover:border-fg" aria-pressed="false" aria-label="Activar modo oscuro" title="Modo oscuro">
+          <svg id="icon-moon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg id="icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <a href="#contacto" class="hidden items-center gap-2 bg-fg px-4 py-2.5 text-xs font-medium uppercase tracking-widest text-bg transition-colors hover:bg-primary sm:flex">
+          Contactar
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+        </a>
+        <button id="menu-btn" type="button" class="flex h-10 w-10 items-center justify-center border border-line lg:hidden" aria-expanded="false" aria-controls="mobile-nav" aria-label="Abrir menú">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav id="mobile-nav" aria-label="Móvil" class="hidden border-t border-line bg-bg lg:hidden">
+      <ul class="flex flex-col px-5 py-4">
+        <li><a href="#sobre-mi" class="flex items-baseline gap-4 border-b border-line py-4 font-display font-bold text-4xl uppercase"><span class="font-mono text-xs text-primary">01</span>Sobre mí</a></li>
+        <li><a href="#experiencia" class="flex items-baseline gap-4 border-b border-line py-4 font-display font-bold text-4xl uppercase"><span class="font-mono text-xs text-primary">02</span>Experiencia</a></li>
+        <li><a href="#formacion" class="flex items-baseline gap-4 border-b border-line py-4 font-display font-bold text-4xl uppercase"><span class="font-mono text-xs text-primary">03</span>Formación</a></li>
+        <li><a href="#proyectos" class="flex items-baseline gap-4 border-b border-line py-4 font-display font-bold text-4xl uppercase"><span class="font-mono text-xs text-primary">04</span>Proyectos</a></li>
+        <li><a href="#habilidades" class="flex items-baseline gap-4 border-b border-line py-4 font-display font-bold text-4xl uppercase"><span class="font-mono text-xs text-primary">05</span>Habilidades</a></li>
+        <li><a href="#contacto" class="flex items-baseline gap-4 py-4 font-display font-bold text-4xl uppercase"><span class="font-mono text-xs text-primary">06</span>Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section id="inicio" aria-labelledby="hero-title" class="relative flex min-h-screen flex-col overflow-hidden pt-16">
+      <div id="spotlight" aria-hidden="true" class="pointer-events-none absolute inset-0" style="background: radial-gradient(600px circle at var(--x, 75%) var(--y, 30%), rgba(255,59,59,0.16), transparent 60%);"></div>
+      <div class="grain pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay" aria-hidden="true"></div>
+
+      <div class="relative mx-auto flex w-full max-w-[1600px] flex-1 flex-col justify-between gap-10 px-5 py-10 md:px-10 md:py-14">
+        <div class="pointer-events-none relative z-10 flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-widest text-muted">
+          <p class="flex items-center gap-2.5 border border-line bg-bg/80 px-3 py-2">
+            <span class="relative flex h-2 w-2">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
+            </span>
+            Disponible para trabajar
+          </p>
+          <p class="flex items-center gap-3">
+            <span>Huesca, España</span>
+            <span class="h-px w-6 bg-line" aria-hidden="true"></span>
+            <time id="clock" class="tabular-nums text-fg">--:--:--</time>
+          </p>
+        </div>
+
+        <div class="pointer-events-none relative z-10">
+          <p class="mb-4 text-sm uppercase tracking-[0.3em] text-primary md:text-base">// Técnico en Informática y Redes</p>
+          <h1 id="hero-title" class="pt-[0.2em] font-display font-bold text-[15vw] uppercase leading-[0.9] tracking-[-0.05em] md:text-[13vw] xl:text-[12rem]">
+            <span class="block">Millán</span>
+            <span class="flex items-end gap-4 md:gap-8">
+              <span class="text-outline">Fernandez</span>
+              <span class="mb-[0.12em] hidden h-[0.5em] w-[0.5em] shrink-0 bg-primary md:block" aria-hidden="true"></span>
+            </span>
+          </h1>
+        </div>
+
+        <!-- Escena 3D: en móvil va entre el título y el texto; en escritorio ocupa el lado derecho del hero, detrás del texto -->
+        <div id="scene" role="img" aria-label="Escena 3D: mi escritorio con monitor, servidor, balón de fútbol, mancuerna y una placa con mi nombre, y cuatro tarjetas con mis proyectos orbitando alrededor. Pulsa un proyecto para verlo." class="relative z-0 -mx-5 h-[360px] md:absolute md:inset-y-0 md:right-0 md:mx-0 md:h-auto md:w-[62%]">
+          <span id="scene-hint" class="pointer-events-none absolute bottom-2 right-5 z-10 text-[10px] uppercase tracking-widest text-muted md:bottom-0 md:right-0">Mueve el ratón · pulsa un proyecto</span>
+        </div>
+
+        <div class="pointer-events-none relative z-10 grid items-end gap-8 md:grid-cols-12">
+          <p class="max-w-xl text-base leading-relaxed text-muted md:col-span-6 md:text-lg">
+            Especializado en
+            <span class="relative inline-flex items-baseline text-fg" aria-live="polite">
+              <span id="rotating">soporte técnico</span>
+              <span class="caret ml-0.5 inline-block h-[1em] w-[0.5ch] translate-y-[0.15em] bg-primary" aria-hidden="true"></span>
+            </span>
+            <br class="hidden sm:block" />
+            Técnico en SMR y estudiante de ASIR con ganas de crecer en el mundo tecnológico.
+          </p>
+          <div class="flex flex-wrap gap-3 md:col-span-6 md:justify-end">
+            <a href="#experiencia" class="pointer-events-auto group flex items-center gap-3 bg-primary px-6 py-4 text-sm font-medium uppercase tracking-widest text-ink transition-transform hover:-translate-y-1">
+              Ver experiencia
+              <svg class="h-4 w-4 transition-transform group-hover:translate-y-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            </a>
+            <a href="#contacto" class="pointer-events-auto flex items-center gap-3 border border-fg bg-bg/70 px-6 py-4 text-sm font-medium uppercase tracking-widest transition-colors hover:bg-fg hover:text-bg">
+              Contactar
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="relative z-10 -rotate-2 scale-105 overflow-hidden bg-primary py-4 text-ink" aria-hidden="true">
+      <div id="marquee" class="marquee flex w-max"></div>
+    </div>
+
+    <!-- Stats -->
+    <section aria-label="Cifras" class="border-b border-line pt-16 md:pt-24">
+      <dl class="mx-auto grid max-w-[1600px] grid-cols-2 lg:grid-cols-4">
+        <div class="reveal group flex flex-col-reverse gap-2 border-t border-line px-5 py-10 transition-colors hover:bg-primary hover:text-ink md:px-10">
+          <dt class="text-xs uppercase tracking-widest text-muted group-hover:text-ink">Años</dt>
+          <dd class="font-display font-bold text-7xl leading-none md:text-8xl">20</dd>
+        </div>
+        <div class="reveal group flex flex-col-reverse gap-2 border-l border-t border-line px-5 py-10 transition-colors hover:bg-primary hover:text-ink md:px-10" style="transition-delay:80ms">
+          <dt class="text-xs uppercase tracking-widest text-muted group-hover:text-ink">Prácticas en empresa</dt>
+          <dd class="font-display font-bold text-7xl leading-none md:text-8xl">2</dd>
+        </div>
+        <div class="reveal group flex flex-col-reverse gap-2 border-t border-line px-5 py-10 transition-colors hover:bg-primary hover:text-ink md:px-10 lg:border-l" style="transition-delay:160ms">
+          <dt class="text-xs uppercase tracking-widest text-muted group-hover:text-ink">Nivel de inglés</dt>
+          <dd class="font-display font-bold text-7xl leading-none md:text-8xl">B2</dd>
+        </div>
+        <div class="reveal group flex flex-col-reverse gap-2 border-l border-t border-line px-5 py-10 transition-colors hover:bg-primary hover:text-ink md:px-10" style="transition-delay:240ms">
+          <dt class="text-xs uppercase tracking-widest text-muted group-hover:text-ink">Titulaciones</dt>
+          <dd class="font-display font-bold text-7xl leading-none md:text-8xl">3</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Sobre mí -->
+    <section id="sobre-mi" aria-labelledby="sobre-mi-title" class="scroll-mt-16 py-24 md:py-36">
+      <div class="mx-auto max-w-[1600px] px-5 md:px-10">
+        <div class="reveal mb-12 flex flex-col gap-4 md:mb-20">
+          <p class="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted"><span class="text-primary">// 01</span><span class="h-px w-10 bg-line"></span>Sobre mí</p>
+          <h2 id="sobre-mi-title" class="font-display font-bold text-[2.6rem] uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl lg:text-[7.5rem]">Perfil <span class="text-outline">profesional</span></h2>
+        </div>
+
+        <div class="grid gap-12 md:grid-cols-12">
+          <div class="reveal relative md:col-span-5">
+            <div class="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-card">
+              <img src="avatar.jpg" width="900" height="1125" alt="Avatar 3D de Millán Fernandez, con pelo corto rubio y chaqueta negra con detalles rojos" class="h-full w-full object-cover" />
+            </div>
+            <p class="absolute -bottom-5 -right-3 rotate-3 bg-fg px-4 py-2 font-display font-bold text-2xl uppercase text-bg md:-right-6">Hola, soy Millán</p>
+          </div>
+
+          <div class="flex flex-col justify-between gap-10 md:col-span-6 md:col-start-7">
+            <p class="reveal text-2xl leading-snug md:text-4xl">Joven de 20 años, técnico en Sistemas Microinformáticos y Redes y estudiante de ASIR. Soy responsable, organizado y aprendo rápido.</p>
+            <div class="reveal flex flex-col gap-6 leading-relaxed text-muted">
+              <p>Me entusiasma el ámbito tecnológico: desde montar y reparar equipos hasta configurar redes o diseñar páginas web.</p>
+              <p>Busco oportunidades en soporte técnico o entornos relacionados con la informática donde seguir aprendiendo y aportar desde el primer día.</p>
+            </div>
+            <ul class="reveal grid grid-cols-2 gap-px bg-line text-xs uppercase tracking-widest">
+              <li class="flex flex-col gap-1 bg-bg p-4"><span class="text-muted">Ubicación</span><span>Huesca, España</span></li>
+              <li class="flex flex-col gap-1 bg-bg p-4"><span class="text-muted">Edad</span><span>20 años</span></li>
+              <li class="flex flex-col gap-1 bg-bg p-4"><span class="text-muted">Idiomas</span><span>Español nativo · Inglés B2 (preparando C1)</span></li>
+              <li class="flex flex-col gap-1 bg-bg p-4"><span class="text-muted">Carnet</span><span>Permiso B</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experiencia -->
+    <section id="experiencia" aria-labelledby="experiencia-title" class="scroll-mt-16 bg-fg py-24 text-bg md:py-36">
+      <div class="mx-auto max-w-[1600px] px-5 md:px-10">
+        <div class="reveal mb-12 flex flex-col gap-4 md:mb-20">
+          <p class="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-bg/60"><span class="text-primary">// 02</span><span class="h-px w-10 bg-bg/20"></span>Experiencia</p>
+          <h2 id="experiencia-title" class="font-display font-bold text-[2.6rem] uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl lg:text-[7.5rem]">Experiencia <span class="text-outline-dark">laboral</span></h2>
+        </div>
+
+        <ol class="border-t border-bg/20">
+          <li class="job open reveal border-b border-bg/20">
+            <h3>
+              <button type="button" class="job-btn group grid w-full grid-cols-12 items-center gap-4 py-6 text-left md:py-8" aria-expanded="true" aria-controls="job-0">
+                <span class="col-span-12 text-xs uppercase tracking-widest text-bg/60 md:col-span-2">Mar 2026 — Jun 2026</span>
+                <span class="job-name col-span-10 font-display font-bold text-4xl uppercase leading-none transition-colors group-hover:text-primary md:col-span-6 md:text-6xl">SD Huesca</span>
+                <span class="hidden text-sm uppercase tracking-widest md:col-span-3 md:block">Web designer e informático</span>
+                <span class="job-icon col-span-2 flex h-10 w-10 items-center justify-center justify-self-end border border-bg/30 transition-all md:col-span-1 md:h-12 md:w-12" aria-hidden="true">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                </span>
+              </button>
+            </h3>
+            <div id="job-0" role="region" class="job-panel">
+              <div class="overflow-hidden">
+                <div class="grid grid-cols-12 gap-4 pb-10">
+                  <p class="col-span-12 text-sm uppercase tracking-widest md:hidden">Web designer e informático</p>
+                  <p class="col-span-12 max-w-2xl text-lg leading-relaxed md:col-span-6 md:col-start-3">Prácticas en empresa en SD Huesca (espectáculos deportivos). Diseño y mantenimiento web, además de tareas de soporte informático para el equipo del club.</p>
+                  <ul class="col-span-12 flex flex-wrap content-start gap-2 md:col-span-4" aria-label="Áreas">
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Diseño web</li>
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Soporte técnico</li>
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Mantenimiento</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="job open reveal border-b border-bg/20">
+            <h3>
+              <button type="button" class="job-btn group grid w-full grid-cols-12 items-center gap-4 py-6 text-left md:py-8" aria-expanded="true" aria-controls="job-1">
+                <span class="col-span-12 text-xs uppercase tracking-widest text-bg/60 md:col-span-2">Abr 2025 — Jun 2025</span>
+                <span class="job-name col-span-10 font-display font-bold text-4xl uppercase leading-none transition-colors group-hover:text-primary md:col-span-6 md:text-6xl">Zynk</span>
+                <span class="hidden text-sm uppercase tracking-widest md:col-span-3 md:block">Ayudante de reparación</span>
+                <span class="job-icon col-span-2 flex h-10 w-10 items-center justify-center justify-self-end border border-bg/30 transition-all md:col-span-1 md:h-12 md:w-12" aria-hidden="true">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                </span>
+              </button>
+            </h3>
+            <div id="job-1" role="region" class="job-panel">
+              <div class="overflow-hidden">
+                <div class="grid grid-cols-12 gap-4 pb-10">
+                  <p class="col-span-12 text-sm uppercase tracking-widest md:hidden">Ayudante de reparación</p>
+                  <p class="col-span-12 max-w-2xl text-lg leading-relaxed md:col-span-6 md:col-start-3">Prácticas en empresa en Zynk — Soluciones digitales. Ayudante en la reparación de equipos informáticos e impresoras: diagnóstico de averías, sustitución de componentes y puesta a punto.</p>
+                  <ul class="col-span-12 flex flex-wrap content-start gap-2 md:col-span-4" aria-label="Áreas">
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Hardware</li>
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Impresoras</li>
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Diagnóstico</li>
+                    <li class="border border-bg/30 px-3 py-1.5 text-xs uppercase tracking-widest">Reparación</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Formación -->
+    <section id="formacion" aria-labelledby="formacion-title" class="scroll-mt-16 py-24 md:py-36">
+      <div class="mx-auto max-w-[1600px] px-5 md:px-10">
+        <div class="reveal mb-12 flex flex-col gap-4 md:mb-20">
+          <p class="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted"><span class="text-primary">// 03</span><span class="h-px w-10 bg-line"></span>Formación</p>
+          <h2 id="formacion-title" class="font-display font-bold text-[2.6rem] uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl lg:text-[7.5rem]">Formación <span class="text-outline">académica</span></h2>
+        </div>
+
+        <div class="grid gap-12 lg:grid-cols-12">
+          <ol class="flex flex-col lg:col-span-8">
+            <li class="reveal group grid gap-4 border-t border-line py-8 md:grid-cols-[10rem_1fr] md:py-10">
+              <div class="flex items-center gap-3 md:flex-col md:items-start">
+                <span class="text-xs uppercase tracking-widest text-muted">2026 — Actualidad</span>
+                <span class="bg-primary px-2 py-1 text-[10px] uppercase tracking-widest text-ink">En curso</span>
+              </div>
+              <div class="flex flex-col gap-2">
+                <h3 class="font-display font-bold text-4xl uppercase leading-none transition-colors group-hover:text-primary md:text-5xl">I.E.S. Sierra de Guara</h3>
+                <p class="leading-relaxed text-muted">FP Grado Superior en Administración de Sistemas Informáticos en Red (ASIR)</p>
+              </div>
+            </li>
+            <li class="reveal group grid gap-4 border-t border-line py-8 md:grid-cols-[10rem_1fr] md:py-10" style="transition-delay:80ms">
+              <div class="flex items-center gap-3 md:flex-col md:items-start">
+                <span class="text-xs uppercase tracking-widest text-muted">2024 — 2026</span>
+                <span class="border border-line px-2 py-1 text-[10px] uppercase tracking-widest text-muted">Titulado</span>
+              </div>
+              <div class="flex flex-col gap-2">
+                <h3 class="font-display font-bold text-4xl uppercase leading-none transition-colors group-hover:text-primary md:text-5xl">I.E.S. Sierra de Guara</h3>
+                <p class="leading-relaxed text-muted">FP Grado Medio en Sistemas Microinformáticos y Redes (SMR)</p>
+              </div>
+            </li>
+            <li class="reveal group grid gap-4 border-t border-line py-8 md:grid-cols-[10rem_1fr] md:py-10" style="transition-delay:160ms">
+              <div class="flex items-center gap-3 md:flex-col md:items-start">
+                <span class="text-xs uppercase tracking-widest text-muted">2022 — 2024</span>
+                <span class="border border-line px-2 py-1 text-[10px] uppercase tracking-widest text-muted">Titulado</span>
+              </div>
+              <div class="flex flex-col gap-2">
+                <h3 class="font-display font-bold text-4xl uppercase leading-none transition-colors group-hover:text-primary md:text-5xl">I.E.S. Ramón y Cajal</h3>
+                <p class="leading-relaxed text-muted">FP Grado Básico en Administración de Sistemas e Informática de Oficina</p>
+              </div>
+            </li>
+            <li class="reveal group grid gap-4 border-y border-line py-8 md:grid-cols-[10rem_1fr] md:py-10" style="transition-delay:160ms">
+              <div class="flex items-center gap-3 md:flex-col md:items-start">
+                <span class="text-xs uppercase tracking-widest text-muted">2007 — 2022</span>
+                <span class="border border-line px-2 py-1 text-[10px] uppercase tracking-widest text-muted">Completado</span>
+              </div>
+              <div class="flex flex-col gap-2">
+                <h3 class="font-display font-bold text-4xl uppercase leading-none transition-colors group-hover:text-primary md:text-5xl">Salesianos Huesca</h3>
+                <p class="leading-relaxed text-muted">Educación Primaria y Educación Secundaria Obligatoria</p>
+              </div>
+            </li>
+          </ol>
+
+          <aside aria-labelledby="titulaciones-title" class="reveal lg:col-span-4">
+            <div class="flex h-full flex-col gap-6 border border-primary p-6 md:p-8">
+              <h3 id="titulaciones-title" class="flex items-center gap-3 font-display font-bold text-3xl uppercase">
+                <svg class="h-7 w-7 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg>
+                Titulaciones
+              </h3>
+              <ul class="flex flex-col text-sm leading-relaxed">
+                <li class="flex gap-3 border-b border-line py-4"><span class="mt-2 h-1.5 w-1.5 shrink-0 bg-primary"></span>Título Profesional Básico en Informática Administrativa y Comunicaciones</li>
+                <li class="flex gap-3 border-b border-line py-4"><span class="mt-2 h-1.5 w-1.5 shrink-0 bg-primary"></span>Técnico en Sistemas Microinformáticos y Redes (SMR)</li>
+                <li class="flex gap-3 border-b border-line py-4"><span class="mt-2 h-1.5 w-1.5 shrink-0 bg-primary"></span>Técnico Superior en ASIR (en curso)</li>
+                <li class="flex gap-3 border-b border-line py-4"><span class="mt-2 h-1.5 w-1.5 shrink-0 bg-primary"></span>Inglés B2 — preparando C1</li>
+                <li class="flex gap-3 py-4"><span class="mt-2 h-1.5 w-1.5 shrink-0 bg-primary"></span>Permiso de conducir B</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proyectos -->
+    <section id="proyectos" aria-labelledby="proyectos-title" class="scroll-mt-16 border-t border-line py-24 md:py-36">
+      <div class="mx-auto max-w-[1600px] px-5 md:px-10">
+        <div class="reveal mb-12 flex flex-col gap-4 md:mb-20">
+          <p class="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted"><span class="text-primary">// 04</span><span class="h-px w-10 bg-line"></span>Proyectos</p>
+          <h2 id="proyectos-title" class="font-display font-bold text-[2.6rem] uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl lg:text-[7.5rem]">Lo que <span class="text-outline">he hecho</span></h2>
+        </div>
+        <ul id="projects" class="grid gap-6 md:grid-cols-2"></ul>
+      </div>
+    </section>
+
+    <!-- Habilidades -->
+    <section id="habilidades" aria-labelledby="habilidades-title" class="scroll-mt-16 border-t border-line py-24 md:py-36">
+      <div class="mx-auto max-w-[1600px] px-5 md:px-10">
+        <div class="reveal mb-12 flex flex-col gap-4 md:mb-20">
+          <p class="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted"><span class="text-primary">// 05</span><span class="h-px w-10 bg-line"></span>Habilidades</p>
+          <h2 id="habilidades-title" class="font-display font-bold text-[2.6rem] uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl lg:text-[7.5rem]">Mis <span class="text-outline">habilidades</span></h2>
+        </div>
+        <div id="skills" class="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-4"></div>
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section id="contacto" aria-labelledby="contacto-title" class="relative scroll-mt-16 overflow-hidden bg-primary text-fg">
+      <div class="mx-auto flex max-w-[1600px] flex-col gap-16 px-5 pb-8 pt-24 md:px-10 md:pt-36">
+        <div class="reveal">
+          <p class="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em]"><span>// 06</span><span class="h-px w-10 bg-fg/40"></span>Contacto</p>
+          <h2 id="contacto-title" class="font-display font-bold text-[16vw] uppercase leading-[0.9] tracking-[-0.05em] xl:text-[15rem]">Hablemos</h2>
+        </div>
+
+        <div class="grid gap-10 md:grid-cols-12">
+          <div class="reveal flex flex-col gap-6 md:col-span-7">
+            <p class="max-w-lg text-lg leading-relaxed">¿Buscas a alguien para soporte técnico, redes o mantenimiento informático? Estaré encantado de hablar contigo.</p>
+            <div class="flex flex-wrap items-stretch gap-3">
+              <a id="mail-link" href="mailto:millanbusiness8@gmail.com" class="flex items-center gap-3 bg-fg px-6 py-4 text-sm font-medium tracking-widest text-primary transition-transform hover:-translate-y-1 md:text-base">
+                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+                <span id="mail-text" class="select-all break-all">millanbusiness8@gmail.com</span>
+              </a>
+              <button id="copy-btn" type="button" class="flex items-center gap-2 border border-fg px-5 py-4 text-xs uppercase tracking-widest transition-colors hover:bg-fg hover:text-primary">
+                <span id="copy-label" aria-live="polite">Copiar</span>
+              </button>
+            </div>
+            <a href="tel:+34653099538" class="w-fit font-display font-bold text-4xl uppercase underline-offset-8 hover:underline md:text-5xl">+34 653 09 95 38</a>
+          </div>
+
+          <nav aria-label="Contacto directo" class="reveal md:col-span-4 md:col-start-9">
+            <ul class="border-t border-fg/30">
+              <li><a href="mailto:millanbusiness8@gmail.com" class="group flex items-center justify-between border-b border-fg/30 py-4 font-display font-bold text-3xl uppercase transition-all hover:pl-3">Email<svg class="h-6 w-6 transition-transform group-hover:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></li>
+              <li><a href="tel:+34653099538" class="group flex items-center justify-between border-b border-fg/30 py-4 font-display font-bold text-3xl uppercase transition-all hover:pl-3">Teléfono<svg class="h-6 w-6 transition-transform group-hover:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></li>
+              <li><a href="https://wa.me/34653099538" target="_blank" rel="noopener noreferrer" class="group flex items-center justify-between border-b border-fg/30 py-4 font-display font-bold text-3xl uppercase transition-all hover:pl-3">WhatsApp<svg class="h-6 w-6 transition-transform group-hover:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <footer class="flex flex-col justify-between gap-2 border-t border-fg/30 pt-6 text-xs uppercase tracking-widest sm:flex-row">
+          <p>© <span id="year"></span> Millán Fernandez</p>
+          <a href="#inicio" class="hover:underline hover:underline-offset-4">Volver arriba ↑</a>
+        </footer>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  const marqueeWords = ['Sistemas', 'Redes', 'Hardware', 'Soporte técnico', 'Diseño web', 'Reparación', 'Windows', 'Linux']
+  const roles = ['soporte técnico', 'redes locales', 'reparación de equipos', 'diseño web']
+  const projects = [
+    { title: 'Web SD Huesca', year: '2026', category: 'Diseño web', description: 'Trabajo de diseño y mantenimiento web realizado durante las prácticas en el club, cuidando la imagen y el contenido digital.', stack: ['Diseño web', 'Contenido', 'UX'], link: '#' },
+    { title: 'Creación de CRM personal', year: '2026', category: 'Proyecto personal', description: 'CRM desarrollado para el día a día, con código y gestión de base de datos para futura implementación como aplicación. Reúne gastos, gym, comida y calendario en una escena 3D interactiva.', stack: ['Código', 'Base de datos', 'CRM', '3D'], link: 'https://millan5fernandez-ux.github.io/crm/demo/' },
+    { title: 'Torneo de Acebedo', year: '2026', category: 'Desarrollo web', description: 'Web del torneo de fútbol de Acebedo, que hice este verano. Tema propio de WordPress con los colores del escudo del pueblo y animaciones al hacer scroll solo con CSS.', stack: ['WordPress', 'Elementor', 'CSS'], link: 'https://acebedocup2026.es/' },
+    { title: 'Este portfolio', year: '2026', category: 'Proyecto personal', description: 'Mi currículum convertido en web: diseño propio, animaciones, una escena 3D y adaptado a móvil para mostrar mi perfil de forma diferente.', stack: ['HTML', 'Tailwind', 'JavaScript', 'Three.js'], link: '#' },
+  ]
+  const skills = [
+    { group: 'Hardware', items: ['Montaje de equipos', 'Reparación', 'Impresoras', 'Diagnóstico de averías', 'Periféricos'] },
+    { group: 'Redes', items: ['Redes locales', 'TCP/IP', 'Cableado', 'Routers y switches', 'Wi-Fi'] },
+    { group: 'Sistemas', items: ['Windows', 'Linux', 'Instalación de SO', 'Ofimática', 'Copias de seguridad'] },
+    { group: 'Personal', items: ['Responsable', 'Organizado', 'Aprendo rápido', 'Trabajo en equipo', 'Inglés B2'] },
+  ]
+
+  const asterisk = '<svg class="h-8 w-8 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 6v12M17.196 9 6.804 15M6.804 9l10.392 6"/></svg>'
+  document.getElementById('marquee').innerHTML = [...marqueeWords, ...marqueeWords]
+    .map(w => `<span class="flex items-center gap-6 px-3 font-display font-bold text-4xl uppercase md:text-6xl">${w}${asterisk}</span>`).join('')
+
+  document.getElementById('projects').innerHTML = projects.map((p, i) => `
+    <li id="proj-${i}" class="reveal group relative flex scroll-mt-24 flex-col overflow-hidden border border-line bg-card transition-colors hover:border-primary" style="transition-delay:${(i % 2) * 100}ms">
+      <a href="${p.link}" ${p.link !== '#' ? 'target="_blank" rel="noopener noreferrer"' : ''} class="absolute inset-0 z-10" aria-label="Ver proyecto ${p.title}"></a>
+      <div class="relative aspect-[16/9] overflow-hidden bg-fg">
+        <div class="absolute inset-0 opacity-40 transition-opacity duration-700 group-hover:opacity-80" style="background: radial-gradient(circle at 30% 120%, #ff3b3b, transparent 60%)"></div>
+        <span class="absolute left-4 top-4 bg-bg px-3 py-1.5 text-xs uppercase tracking-widest">${p.category}</span>
+        <span class="absolute -bottom-6 right-2 font-display font-bold text-[10rem] leading-none text-primary transition-transform duration-500 group-hover:-translate-y-4" aria-hidden="true">0${i + 1}</span>
+      </div>
+      <div class="flex flex-1 flex-col gap-5 p-6 md:p-8">
+        <div class="flex items-start justify-between gap-4">
+          <h3 class="font-display font-bold text-5xl uppercase leading-none md:text-6xl">${p.title}</h3>
+          <span class="pt-2 text-xs tracking-widest text-muted">${p.year}</span>
+        </div>
+        <p class="leading-relaxed text-muted">${p.description}</p>
+        <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
+          <ul class="flex flex-wrap gap-2" aria-label="Áreas">${p.stack.map(t => `<li class="bg-soft px-3 py-1.5 text-xs uppercase tracking-widest">${t}</li>`).join('')}</ul>
+          <span class="flex h-11 w-11 items-center justify-center bg-primary text-ink transition-transform group-hover:rotate-45" aria-hidden="true">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </div>
+    </li>`).join('')
+
+  document.getElementById('skills').innerHTML = skills.map((s, i) => `
+    <div class="reveal flex flex-col gap-8 bg-bg p-6 md:p-8" style="transition-delay:${i * 80}ms">
+      <div class="flex items-baseline justify-between">
+        <h3 class="font-display font-bold text-3xl uppercase">${s.group}</h3>
+        <span class="text-xs text-primary">[0${i + 1}]</span>
+      </div>
+      <ul class="flex flex-col">${s.items.map(it => `
+        <li class="group flex items-center justify-between border-b border-line py-3 text-sm uppercase tracking-widest transition-all hover:pl-2 hover:text-primary">
+          ${it}<span class="h-1.5 w-1.5 bg-muted transition-colors group-hover:bg-primary" aria-hidden="true"></span>
+        </li>`).join('')}
+      </ul>
+    </div>`).join('')
+
+  document.getElementById('year').textContent = new Date().getFullYear()
+
+  /* Modo oscuro */
+  const rootEl = document.documentElement
+  const themeBtn = document.getElementById('theme-btn')
+  const darkMq = matchMedia('(prefers-color-scheme: dark)')
+  const effectiveTheme = () => rootEl.dataset.theme || (darkMq.matches ? 'dark' : 'light')
+  function syncThemeBtn() {
+    const dark = effectiveTheme() === 'dark'
+    themeBtn.setAttribute('aria-pressed', String(dark))
+    themeBtn.setAttribute('aria-label', dark ? 'Activar modo claro' : 'Activar modo oscuro')
+    themeBtn.title = dark ? 'Modo claro' : 'Modo oscuro'
+    document.getElementById('icon-sun').classList.toggle('hidden', !dark)
+    document.getElementById('icon-moon').classList.toggle('hidden', dark)
+    window.dispatchEvent(new Event('themechange'))
+  }
+  themeBtn.addEventListener('click', () => {
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark'
+    rootEl.dataset.theme = next
+    try { localStorage.setItem('theme', next) } catch (e) {}
+    syncThemeBtn()
+  })
+  darkMq.addEventListener('change', () => { if (!rootEl.dataset.theme) syncThemeBtn() })
+  syncThemeBtn()
+
+  const clock = document.getElementById('clock')
+  const fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Madrid' })
+  const tick = () => { clock.textContent = fmt.format(new Date()) }
+  tick(); setInterval(tick, 1000)
+
+  const rotating = document.getElementById('rotating')
+  let roleIndex = 0
+  setInterval(() => {
+    roleIndex = (roleIndex + 1) % roles.length
+    rotating.textContent = roles[roleIndex]
+    rotating.classList.remove('rise'); void rotating.offsetWidth; rotating.classList.add('rise')
+  }, 2400)
+
+  const hero = document.getElementById('inicio')
+  const spot = document.getElementById('spotlight')
+  let frame = 0
+  hero.addEventListener('pointermove', e => {
+    cancelAnimationFrame(frame)
+    frame = requestAnimationFrame(() => {
+      const r = hero.getBoundingClientRect()
+      spot.style.setProperty('--x', `${e.clientX - r.left}px`)
+      spot.style.setProperty('--y', `${e.clientY - r.top}px`)
+    })
+  })
+
+  const menuBtn = document.getElementById('menu-btn')
+  const mobileNav = document.getElementById('mobile-nav')
+  menuBtn.addEventListener('click', () => {
+    const open = mobileNav.classList.toggle('hidden') === false
+    menuBtn.setAttribute('aria-expanded', String(open))
+    menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú')
+  })
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mobileNav.classList.add('hidden'); menuBtn.setAttribute('aria-expanded', 'false')
+  }))
+
+  document.querySelectorAll('.job-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const job = btn.closest('.job')
+      const open = job.classList.toggle('open')
+      btn.setAttribute('aria-expanded', String(open))
+    })
+  })
+
+  const copyLabel = document.getElementById('copy-label')
+  document.getElementById('copy-btn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText('millanbusiness8@gmail.com')
+      copyLabel.textContent = 'Copiado'
+    } catch (e) {
+      const r = document.createRange(); r.selectNodeContents(document.getElementById('mail-text'))
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r)
+      copyLabel.textContent = 'Selecciona y copia'
+    }
+    setTimeout(() => { copyLabel.textContent = 'Copiar' }, 2000)
+  })
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target) }
+    })
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' })
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+</script>
+
+<script>
+/* ---------- Escena 3D del hero ---------- */
+(function () {
+  const host = document.getElementById('scene');
+  const hint = document.getElementById('scene-hint');
+  const fail = () => { if (hint) hint.textContent = ''; };
+  if (!window.THREE) return fail();
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { return fail(); }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  host.insertBefore(renderer.domElement, host.firstChild);
+  renderer.domElement.setAttribute('aria-hidden', 'true');
+
+  const C = { bg: '#f1f0ea', fg: '#0b0b0b', primary: '#ff3b3b', card: '#ffffff', line: '#d3d2c9', muted: '#6f6f68' };
+  /* Colores de las tarjetas, cambian con el tema (pantalla y placa son siempre oscuras) */
+  const T = { card: '#ffffff', fg: '#0b0b0b', line: '#d3d2c9' };
+  const MODS = ['SD HUESCA', 'CRM PERSONAL', 'ACEBEDO CUP', 'PORTFOLIO'];
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+  const root = new THREE.Group();
+  scene.add(root);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+  const key = new THREE.DirectionalLight(0xffffff, 0.8); key.position.set(5, 9, 6); scene.add(key);
+  const warm = new THREE.PointLight(0xff3b3b, 0.35, 20); warm.position.set(-4, 3, 3); scene.add(warm);
+
+  const std = (c, o) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.65, metalness: 0.1 }, o || {}));
+  function box(w, h, d, mat, x, y, z) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); root.add(m); return m; }
+
+  /* Suelo y sombra */
+  let grid;
+  function makeGrid(a, b) {
+    if (grid) { root.remove(grid); grid.geometry.dispose(); grid.material.dispose(); }
+    grid = new THREE.GridHelper(16, 16, a, b); grid.position.y = -1.25; root.add(grid);
+  }
+  makeGrid(0xd3d2c9, 0xe0dfd7);
+  const blob = new THREE.Mesh(new THREE.CircleGeometry(4.2, 48), new THREE.MeshBasicMaterial({ color: 0x0b0b0b, transparent: true, opacity: 0.07 }));
+  blob.rotation.x = -Math.PI / 2; blob.position.y = -1.24; root.add(blob);
+
+  /* Mesa */
+  const tableTop = box(4.4, 0.16, 2.2, std(0xffffff), 0, 0, 0);
+  const legs = [];
+  [[-2, -0.65, -0.9], [2, -0.65, -0.9], [-2, -0.65, 0.9], [2, -0.65, 0.9]].forEach(p => legs.push(box(0.12, 1.2, 0.12, std(0x0b0b0b), p[0], p[1], p[2])));
+
+  /* Monitor con pantalla dibujada */
+  const sc = document.createElement('canvas'); sc.width = 640; sc.height = 380;
+  const sctx = sc.getContext('2d');
+  const scrTex = new THREE.CanvasTexture(sc);
+  function drawScreen() {
+    sctx.fillStyle = C.fg; sctx.fillRect(0, 0, 640, 380);
+    sctx.fillStyle = '#26261f'; sctx.fillRect(0, 0, 640, 44);
+    sctx.fillStyle = C.primary; sctx.fillRect(18, 14, 16, 16);
+    sctx.font = "500 20px 'JetBrains Mono', monospace"; sctx.fillStyle = C.bg; sctx.fillText('crm.personal', 270, 29);
+    const hs = [90, 150, 70, 190, 120, 210, 140];
+    hs.forEach((h, i) => { sctx.fillStyle = i === 5 ? C.primary : '#4a4a43'; sctx.fillRect(40 + i * 60, 330 - h, 40, h); });
+    sctx.fillStyle = C.bg; sctx.fillRect(40, 70, 220, 8); sctx.fillStyle = '#4a4a43'; sctx.fillRect(40, 90, 340, 6); sctx.fillRect(40, 106, 260, 6);
+    sctx.font = "400 18px 'JetBrains Mono', monospace"; sctx.fillStyle = C.bg; sctx.fillText('> gym: ok', 470, 80); sctx.fillStyle = C.primary; sctx.fillText('> gastos: ok', 470, 108);
+    scrTex.needsUpdate = true;
+  }
+  drawScreen();
+  const monFrame = box(2.2, 1.3, 0.1, std(0x0b0b0b, { roughness: 0.4 }), 0, 1.0, -0.55);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.1), new THREE.MeshBasicMaterial({ map: scrTex }));
+  screen.position.set(0, 1.0, -0.49); root.add(screen);
+  legs.push(box(0.16, 0.45, 0.16, std(0x0b0b0b), 0, 0.3, -0.6));
+  legs.push(box(0.8, 0.05, 0.4, std(0x0b0b0b), 0, 0.1, -0.6));
+  const keys = [box(1.3, 0.06, 0.42, std(0xd3d2c9), 0, 0.11, 0.45), box(0.16, 0.06, 0.26, std(0xd3d2c9), 1.1, 0.11, 0.45)];
+  const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.26, 20), std(0xff3b3b));
+  mug.position.set(-1.6, 0.21, 0.2); root.add(mug);
+
+  /* Objetos personales: balón de fútbol, mancuerna y placa con mi nombre */
+  const ball = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), std(0xffffff, { flatShading: true, roughness: 0.5 }));
+  ball.position.set(1.5, 0.28, -0.1); root.add(ball);
+  const ballEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(0.202, 1)), new THREE.LineBasicMaterial({ color: 0x0b0b0b }));
+  ballEdges.position.copy(ball.position); root.add(ballEdges);
+
+  const dumb = new THREE.Group();
+  const dMat = std(0x0b0b0b, { metalness: 0.4 });
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.7, 12), std(0xd3d2c9, { metalness: 0.6 }));
+  bar.rotation.z = Math.PI / 2; dumb.add(bar);
+  [-0.3, 0.3].forEach(x => { const d = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.1, 20), dMat); d.rotation.z = Math.PI / 2; d.position.x = x; dumb.add(d); });
+  [-0.38, 0.38].forEach(x => { const d = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 20), std(0xff3b3b)); d.rotation.z = Math.PI / 2; d.position.x = x; dumb.add(d); });
+  dumb.position.set(1.55, 0.25, 0.7); dumb.rotation.y = -0.35; root.add(dumb);
+
+  const nameCv = document.createElement('canvas'); nameCv.width = 512; nameCv.height = 120;
+  const nameCtx = nameCv.getContext('2d');
+  const nameTex = new THREE.CanvasTexture(nameCv);
+  function drawName() {
+    nameCtx.fillStyle = C.fg; nameCtx.fillRect(0, 0, 512, 120);
+    nameCtx.fillStyle = C.primary; nameCtx.fillRect(0, 0, 14, 120);
+    nameCtx.textBaseline = 'middle';
+    nameCtx.fillStyle = C.bg; nameCtx.font = "700 50px 'Space Grotesk', sans-serif"; nameCtx.fillText('MILLÁN F.', 36, 42);
+    nameCtx.fillStyle = C.primary; nameCtx.font = "500 24px 'JetBrains Mono', monospace"; nameCtx.fillText('SMR · ASIR · HUESCA', 36, 92);
+    nameTex.needsUpdate = true;
+  }
+  drawName();
+  box(1.3, 0.3, 0.05, std(0x0b0b0b), -0.5, 0.23, 0.9);
+  const namePlate = new THREE.Mesh(new THREE.PlaneGeometry(1.22, 0.286), new THREE.MeshBasicMaterial({ map: nameTex }));
+  namePlate.position.set(-0.5, 0.23, 0.926); root.add(namePlate);
+
+  /* Servidor con LEDs */
+  const leds = [];
+  const racks = [];
+  for (let i = 0; i < 4; i++) {
+    racks.push(box(1.0, 0.36, 0.9, std(i % 2 ? 0x2a2a27 : 0x0b0b0b), -3.2, -0.95 + i * 0.4, -0.2));
+    const led = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.04), new THREE.MeshBasicMaterial({ color: 0xff3b3b }));
+    led.position.set(-2.82, -0.95 + i * 0.4, 0.27); root.add(led); leds.push(led);
+    const led2 = led.clone(); led2.material = new THREE.MeshBasicMaterial({ color: 0xf1f0ea }); led2.position.x = -3.0; root.add(led2); leds.push(led2);
+  }
+
+  /* Módulos orbitando */
+  const tiles = [];
+  function tileTexture(label) {
+    const c = document.createElement('canvas'); c.width = 512; c.height = 300;
+    const x = c.getContext('2d');
+    const tex = new THREE.CanvasTexture(c);
+    const draw = () => {
+      x.fillStyle = T.card; x.fillRect(0, 0, 512, 300);
+      x.strokeStyle = T.fg; x.lineWidth = 10; x.strokeRect(5, 5, 502, 290);
+      x.fillStyle = C.primary; x.fillRect(34, 42, 26, 26);
+      x.fillStyle = T.fg; x.font = '700 ' + (label.length > 7 ? 54 : 70) + "px 'JetBrains Mono', monospace"; x.textBaseline = 'middle'; x.fillText(label, 34, 150);
+      x.fillStyle = T.line; x.fillRect(34, 220, 300, 10); x.fillRect(34, 244, 210, 10);
+      x.fillStyle = C.primary; x.fillRect(34, 268, 70, 8);
+      tex.needsUpdate = true;
+    };
+    draw();
+    return { tex, draw };
+  }
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x0b0b0b, transparent: true, opacity: 0.45 });
+  const hub = new THREE.Vector3(0, 1.0, -0.5);
+  MODS.forEach((m, i) => {
+    const tt = tileTexture(m);
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.88), new THREE.MeshBasicMaterial({ map: tt.tex, side: THREE.DoubleSide }));
+    mesh.userData = { draw: tt.draw, s: 1, i };
+    root.add(mesh);
+    const g = new THREE.BufferGeometry().setFromPoints([hub, new THREE.Vector3()]);
+    const line = new THREE.Line(g, lineMat); root.add(line);
+    tiles.push({ mesh, line });
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { drawScreen(); drawName(); tiles.forEach(t => t.mesh.userData.draw()); });
+
+  /* Tema claro / oscuro de la escena */
+  function applyTheme() {
+    const ft = document.documentElement.dataset.theme;
+    const dark = ft ? ft === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    Object.assign(T, dark ? { card: '#1a1a17', fg: '#f1f0ea', line: '#3a3a35' } : { card: '#ffffff', fg: '#0b0b0b', line: '#d3d2c9' });
+    tableTop.material.color.set(dark ? 0x2b2b27 : 0xffffff);
+    legs.forEach(l => l.material.color.set(dark ? 0x4a4a44 : 0x0b0b0b));
+    monFrame.material.color.set(dark ? 0x3a3a35 : 0x0b0b0b);
+    racks.forEach((m, i) => m.material.color.set(dark ? (i % 2 ? 0x4a4a44 : 0x35352f) : (i % 2 ? 0x2a2a27 : 0x0b0b0b)));
+    keys.forEach(k => k.material.color.set(dark ? 0x3d3d37 : 0xd3d2c9));
+    blob.material.color.set(dark ? 0x000000 : 0x0b0b0b);
+    blob.material.opacity = dark ? 0.4 : 0.07;
+    lineMat.color.set(dark ? 0xf1f0ea : 0x0b0b0b);
+    if (dark) makeGrid(0x3a3a35, 0x24241f); else makeGrid(0xd3d2c9, 0xe0dfd7);
+    tiles.forEach(t => t.mesh.userData.draw());
+  }
+  applyTheme();
+  window.addEventListener('themechange', applyTheme);
+
+  /* Interacción */
+  const pointer = { x: 0, y: 0, ox: 0, oy: 0, inside: false };
+  window.addEventListener('pointermove', e => {
+    pointer.x = (e.clientX / innerWidth) * 2 - 1;
+    pointer.y = (e.clientY / innerHeight) * 2 - 1;
+    const r = host.getBoundingClientRect();
+    pointer.ox = ((e.clientX - r.left) / r.width) * 2 - 1;
+    pointer.oy = -((e.clientY - r.top) / r.height) * 2 + 1;
+    pointer.inside = pointer.ox >= -1 && pointer.ox <= 1 && pointer.oy >= -1 && pointer.oy <= 1;
+  }, { passive: true });
+  const ray = new THREE.Raycaster();
+  let hovered = null;
+  function pick(cx, cy) {
+    const r = host.getBoundingClientRect();
+    ray.setFromCamera({ x: ((cx - r.left) / r.width) * 2 - 1, y: -((cy - r.top) / r.height) * 2 + 1 }, camera);
+    const hit = ray.intersectObjects(tiles.map(o => o.mesh))[0];
+    return hit ? hit.object : null;
+  }
+  renderer.domElement.addEventListener('click', e => {
+    const hit = pick(e.clientX, e.clientY);
+    if (hit) {
+      const el = document.getElementById('proj-' + hit.userData.i) || document.getElementById('proyectos');
+      if (el) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+  });
+
+  function resize() {
+    const w = host.clientWidth, h = host.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    const dist = Math.max(11.4, 9.4 / (2 * Math.tan(camera.fov * Math.PI / 360) * camera.aspect));
+    camera.position.copy(new THREE.Vector3(6, 4.4, 8).normalize().multiplyScalar(dist));
+    camera.lookAt(0, 0.4, 0);
+    camera.updateProjectionMatrix();
+    render(0);
+  }
+
+  let t = 0, running = true, last = performance.now(), rotY = 0, rotX = 0;
+  function render(dt) {
+    if (!reduce) t += dt;
+    rotY += (pointer.x * 0.35 - rotY) * 0.05; rotX += (pointer.y * 0.08 - rotX) * 0.05;
+    root.rotation.y = rotY + (reduce ? 0 : Math.sin(t * 0.25) * 0.12);
+    root.rotation.x = rotX;
+
+    tiles.forEach((o, i) => {
+      const a = i * (Math.PI * 2 / MODS.length) + t * 0.22;
+      const p = o.mesh.position;
+      p.set(Math.cos(a) * 3.7, 1.5 + Math.sin(i * 1.9) * 0.45 + (reduce ? 0 : Math.sin(t * 0.9 + i) * 0.08), Math.sin(a) * 2.7);
+      o.mesh.lookAt(camera.position);
+      const target = o.mesh === hovered ? 1.18 : 1;
+      o.mesh.userData.s += (target - o.mesh.userData.s) * 0.15;
+      o.mesh.scale.setScalar(o.mesh.userData.s);
+      const pos = o.line.geometry.attributes.position;
+      pos.setXYZ(1, p.x, p.y, p.z); pos.needsUpdate = true;
+    });
+
+    if (!reduce) leds.forEach((l, i) => { l.visible = Math.sin(t * 3 + i * 1.7) > -0.5; });
+
+    if (pointer.inside) {
+      ray.setFromCamera({ x: pointer.ox, y: pointer.oy }, camera);
+      const hit = ray.intersectObjects(tiles.map(o => o.mesh))[0];
+      hovered = hit ? hit.object : null;
+    } else hovered = null;
+    renderer.domElement.style.cursor = hovered ? 'pointer' : 'default';
+    renderer.render(scene, camera);
+  }
+  function loop(now) {
+    if (!running) return;
+    const dt = Math.min((now - last) / 1000, 0.05); last = now;
+    render(dt);
+    requestAnimationFrame(loop);
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(host); else window.addEventListener('resize', resize);
+  resize();
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => {
+      const vis = es[0].isIntersecting;
+      if (vis && !running) { running = true; last = performance.now(); requestAnimationFrame(loop); }
+      else if (!vis) running = false;
+    }).observe(host);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>
