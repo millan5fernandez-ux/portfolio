@@ -608,6 +608,76 @@
     setTimeout(() => { copyLabel.textContent = 'Copiar' }, 2000)
   })
 
+  /* Avatar: los ojos siguen al ratón. Se redibuja la imagen en un canvas y el iris se desplaza dentro de la abertura del ojo */
+  ;(function () {
+    const img = document.querySelector('img.avatar-img')
+    if (!img) return
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const eyes = [
+      { open: [[312,441],[320,435.5],[330,432],[342,429.5],[352,428.8],[364,430.5],[375,434],[386,439],[389.5,443],[380,446.5],[368,451.5],[356,454],[344,454],[332,452],[320,448]],
+        iris: [[330.5,424],[371.5,424],[371.5,430],[371,436],[370.5,445],[362,453],[352,455.5],[341,455],[334,445],[330.5,436]],
+        c1: '#b9b9c6', c2: '#d9d3cd', cx: 351, cy: 441, ox: 0, oy: 0, tx: 0, ty: 0 },
+      { open: [[511,443],[513,438],[518.6,433],[528.6,429.4],[543,427],[561,427.4],[574,429.8],[585.5,435.2],[590.5,441],[588,444.5],[576,449.5],[564.3,453.6],[555.7,455.5],[540,453],[530,449.5],[519,447.5]],
+        iris: [[529,424],[569,424],[569,432],[569,440],[560,451],[556,455],[542,453],[535,451.5],[529.5,443]],
+        c1: '#d2cdd2', c2: '#c9c0bf', cx: 549, cy: 441, ox: 0, oy: 0, tx: 0, ty: 0 }
+    ]
+    const MAX_X = 5, MAX_Y = 2.5
+    const base = new Image()
+    base.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = base.naturalWidth; canvas.height = base.naturalHeight
+      canvas.className = img.className
+      canvas.setAttribute('role', 'img')
+      canvas.setAttribute('aria-label', img.alt)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      const path = pts => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath() }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(base, 0, 0)
+        eyes.forEach(e => {
+          const xs = e.open.map(p => p[0]), x0 = Math.min(...xs), x1 = Math.max(...xs)
+          const g = ctx.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, e.c1); g.addColorStop(1, e.c2)
+          ctx.save()
+          path(e.open); ctx.clip()
+          ctx.fillStyle = g; ctx.fillRect(x0 - 2, 400, x1 - x0 + 4, 80)
+          ctx.translate(e.ox, e.oy)
+          path(e.iris); ctx.clip()
+          ctx.drawImage(base, 0, 0)
+          ctx.restore()
+        })
+      }
+      draw()
+      img.replaceWith(canvas)
+      let raf = 0
+      function tick() {
+        let moving = false
+        eyes.forEach(e => {
+          const k = reduceMotion ? 1 : 0.22
+          e.ox += (e.tx - e.ox) * k; e.oy += (e.ty - e.oy) * k
+          if (Math.abs(e.tx - e.ox) > 0.02 || Math.abs(e.ty - e.oy) > 0.02) moving = true; else { e.ox = e.tx; e.oy = e.ty }
+        })
+        draw()
+        raf = moving ? requestAnimationFrame(tick) : 0
+      }
+      const kick = () => { if (!raf) raf = requestAnimationFrame(tick) }
+      function look(clientX, clientY) {
+        const r = canvas.getBoundingClientRect()
+        if (!r.width) return
+        eyes.forEach(e => {
+          const sx = r.left + (e.cx / canvas.width) * r.width, sy = r.top + (e.cy / canvas.height) * r.height
+          const dx = clientX - sx, dy = clientY - sy, d = Math.hypot(dx, dy) || 1
+          const s = Math.min(1, d / 240)
+          e.tx = (dx / d) * s * MAX_X; e.ty = (dy / d) * s * MAX_Y
+        })
+        kick()
+      }
+      window.addEventListener('pointermove', ev => look(ev.clientX, ev.clientY), { passive: true })
+      document.documentElement.addEventListener('pointerleave', () => { eyes.forEach(e => { e.tx = 0; e.ty = 0 }); kick() })
+    }
+    base.src = img.currentSrc || img.src
+  })()
+
   /* Avatar: inclinación y parallax con el ratón */
   const avatar = document.getElementById('avatar')
   if (avatar) {
