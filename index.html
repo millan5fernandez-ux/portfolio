@@ -69,6 +69,29 @@
   .job.open .job-panel { grid-template-rows: 1fr; opacity: 1; }
   .job.open .job-icon { transform: rotate(45deg); background: #ff3b3b; border-color: #ff3b3b; color: #0b0b0b; }
   .job.open .job-name { color: #ff3b3b; }
+  /* Avatar interactivo: se inclina con el ratón, el bloque rojo y la cuadrícula se mueven en sentido contrario y una línea de escaneo cruza la imagen */
+  .avatar { --mx: 0; --my: 0; --s: 1; --r: 0deg; touch-action: pan-y; cursor: crosshair;
+    background-image: linear-gradient(rgb(var(--fg) / .07) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--fg) / .07) 1px, transparent 1px);
+    background-size: 24px 24px; background-position: calc(var(--mx) * -10px) calc(var(--my) * -10px);
+    transform: perspective(900px) rotateX(calc(var(--my) * -5deg)) rotateY(calc(var(--mx) * 6deg));
+    transition: transform .25s ease-out, background-position .25s ease-out; }
+  .avatar-block { position: absolute; right: 9%; top: 7%; width: 26%; aspect-ratio: 1; background: rgb(var(--primary));
+    transform: translate3d(calc(var(--mx) * -16px), calc(var(--my) * -12px), 0) rotate(var(--r));
+    transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+  .avatar-img { position: absolute; left: -3%; bottom: -3%; width: 106%; max-width: none; height: auto; user-select: none; transform-origin: 50% 100%;
+    transform: translate3d(calc(var(--mx) * 8px), calc(var(--my) * 5px), 0) scale(var(--s));
+    transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+  .avatar-scan { position: absolute; left: 0; right: 0; top: -14%; height: 14%; opacity: 0; pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgb(var(--primary) / .35)); border-bottom: 2px solid rgb(var(--primary)); }
+  .avatar.is-hover { --s: 1.04; --r: 14deg; }
+  .avatar.is-hover .avatar-scan { animation: avatar-scan 1.1s ease-out 1; }
+  @keyframes avatar-scan { 0% { top: -14%; opacity: 1; } 100% { top: 100%; opacity: 0; } }
+  .av-tag { transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+  .av-wrap:hover .av-tag { --tw-rotate: -3deg; --tw-translate-y: -6px; }
+  @media (prefers-reduced-motion: reduce) {
+    .avatar, .avatar-block, .avatar-img, .av-tag { transition: none; transform: none !important; }
+    .avatar.is-hover .avatar-scan { animation: none; }
+  }
   #scene { touch-action: pan-y; }
   #scene canvas { display: block; width: 100%; height: 100%; }
   header.site { padding-top: env(safe-area-inset-top, 0px); }
@@ -222,11 +245,13 @@
         </div>
 
         <div class="grid gap-12 md:grid-cols-12">
-          <div class="reveal relative md:col-span-5">
-            <div class="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-card">
-              <img src="avatar.jpg" width="900" height="1125" alt="Avatar 3D de Millán Fernandez, con pelo corto rubio y chaqueta negra con detalles rojos" class="h-full w-full object-cover" />
+          <div class="av-wrap reveal relative md:col-span-5">
+            <div id="avatar" class="avatar relative aspect-[4/5] overflow-hidden bg-card">
+              <div class="avatar-block" aria-hidden="true"></div>
+              <img src="avatar.webp" width="900" height="1117" alt="Avatar 3D de Millán Fernandez, con pelo corto rubio y chaqueta negra con detalles rojos" class="avatar-img" draggable="false" />
+              <div class="avatar-scan" aria-hidden="true"></div>
             </div>
-            <p class="absolute -bottom-5 -right-3 rotate-3 bg-fg px-4 py-2 font-display font-bold text-2xl uppercase text-bg md:-right-6">Hola, soy Millán</p>
+            <p class="av-tag absolute -bottom-5 -right-3 rotate-3 bg-fg px-4 py-2 font-display font-bold text-2xl uppercase text-bg md:-right-6">Hola, soy Millán</p>
           </div>
 
           <div class="flex flex-col justify-between gap-10 md:col-span-6 md:col-start-7">
@@ -582,6 +607,20 @@
     }
     setTimeout(() => { copyLabel.textContent = 'Copiar' }, 2000)
   })
+
+  /* Avatar: inclinación y parallax con el ratón */
+  const avatar = document.getElementById('avatar')
+  if (avatar) {
+    const reset = () => { avatar.style.setProperty('--mx', 0); avatar.style.setProperty('--my', 0) }
+    avatar.addEventListener('pointerenter', () => avatar.classList.add('is-hover'))
+    avatar.addEventListener('pointerleave', () => { avatar.classList.remove('is-hover'); reset() })
+    avatar.addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch') return
+      const r = avatar.getBoundingClientRect()
+      avatar.style.setProperty('--mx', (((e.clientX - r.left) / r.width) - 0.5) * 2)
+      avatar.style.setProperty('--my', (((e.clientY - r.top) / r.height) - 0.5) * 2)
+    })
+  }
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
