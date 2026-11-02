@@ -496,7 +496,6 @@
       <div class="relative overflow-hidden bg-fg ${p.featured ? 'aspect-[16/9] md:aspect-auto md:min-h-[26rem] md:w-1/2' : 'aspect-[16/9]'}">
         <div class="absolute inset-0 opacity-40 transition-opacity duration-700 group-hover:opacity-80" style="background: radial-gradient(circle at 30% 120%, #ff3b3b, transparent 60%)"></div>
         <span class="absolute left-4 top-4 bg-bg px-3 py-1.5 text-xs uppercase tracking-widest">${p.category}</span>
-        ${p.featured ? '<span class="absolute right-4 top-4 flex items-center gap-2 bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-ink"><span class="pulse-dot h-2 w-2 rounded-full bg-ink" style="animation: pulse-dot 1.4s infinite"></span>Experiencia destacada</span>' : ''}
         <span class="absolute -bottom-6 right-2 font-display font-bold text-[10rem] leading-none text-primary transition-transform duration-500 group-hover:-translate-y-4" aria-hidden="true">0${i + 1}</span>
       </div>
       <div class="flex flex-1 flex-col gap-5 p-6 md:p-8 ${p.featured ? 'md:justify-center md:p-12' : ''}">
