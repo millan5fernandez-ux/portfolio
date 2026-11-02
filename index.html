@@ -474,10 +474,10 @@
   const marqueeWords = ['Sistemas', 'Redes', 'Hardware', 'Soporte técnico', 'Diseño web', 'Reparación', 'Windows', 'Linux']
   const roles = ['soporte técnico', 'redes locales', 'reparación de equipos', 'diseño web']
   const projects = [
-    { title: 'Web SD Huesca', year: '2026', category: 'Diseño web', description: 'Trabajo de diseño y mantenimiento web realizado durante las prácticas en el club, cuidando la imagen y el contenido digital.', stack: ['Diseño web', 'Contenido', 'UX'], link: '#' },
+    { title: 'Web SD Huesca', year: '2026', category: 'Diseño web', description: 'Trabajo de diseño y mantenimiento web realizado durante las prácticas en el club, cuidando la imagen y el contenido digital.', stack: ['Diseño web', 'Contenido', 'UX'], link: '#', featured: true },
     { title: 'Creación de CRM personal', year: '2026', category: 'Proyecto personal', description: 'CRM desarrollado para el día a día, con código y gestión de base de datos para futura implementación como aplicación. Reúne gastos, gym, comida y calendario en una escena 3D interactiva.', stack: ['Código', 'Base de datos', 'CRM', '3D'], link: 'https://millan5fernandez-ux.github.io/crm/demo/' },
     { title: 'Torneo de Acebedo', year: '2026', category: 'Desarrollo web', description: 'Web del torneo de fútbol de Acebedo, que hice este verano. Tema propio de WordPress con los colores del escudo del pueblo y animaciones al hacer scroll solo con CSS.', stack: ['WordPress', 'Elementor', 'CSS'], link: 'https://acebedocup2026.es/' },
-    { title: 'Este portfolio', year: '2026', category: 'Proyecto personal', description: 'Mi currículum convertido en web: diseño propio, animaciones, una escena 3D y adaptado a móvil para mostrar mi perfil de forma diferente.', stack: ['HTML', 'Tailwind', 'JavaScript', 'Three.js'], link: '#' },
+    { title: 'Este portfolio', year: '2026', category: 'Proyecto personal', description: 'Mi currículum convertido en web: diseño propio, animaciones, una escena 3D y adaptado a móvil para mostrar mi perfil de forma diferente.', stack: ['HTML', 'Three.js'], link: '#' },
   ]
   const skills = [
     { group: 'Hardware', items: ['Montaje de equipos', 'Reparación', 'Impresoras', 'Diagnóstico de averías', 'Periféricos'] },
@@ -491,19 +491,20 @@
     .map(w => `<span class="flex items-center gap-6 px-3 font-display font-bold text-4xl uppercase md:text-6xl">${w}${asterisk}</span>`).join('')
 
   document.getElementById('projects').innerHTML = projects.map((p, i) => `
-    <li id="proj-${i}" class="reveal group relative flex scroll-mt-24 flex-col overflow-hidden border border-line bg-card transition-colors hover:border-primary" style="transition-delay:${(i % 2) * 100}ms">
+    <li id="proj-${i}" class="reveal group relative flex scroll-mt-24 flex-col overflow-hidden border border-line bg-card transition-colors hover:border-primary ${p.featured ? 'featured-card md:col-span-2 md:flex-row' : ''}" style="transition-delay:${(i % 2) * 100}ms">
       <a href="${p.link}" ${p.link !== '#' ? 'target="_blank" rel="noopener noreferrer"' : ''} class="absolute inset-0 z-10" aria-label="Ver proyecto ${p.title}"></a>
-      <div class="relative aspect-[16/9] overflow-hidden bg-fg">
+      <div class="relative overflow-hidden bg-fg ${p.featured ? 'aspect-[16/9] md:aspect-auto md:min-h-[26rem] md:w-1/2' : 'aspect-[16/9]'}">
         <div class="absolute inset-0 opacity-40 transition-opacity duration-700 group-hover:opacity-80" style="background: radial-gradient(circle at 30% 120%, #ff3b3b, transparent 60%)"></div>
         <span class="absolute left-4 top-4 bg-bg px-3 py-1.5 text-xs uppercase tracking-widest">${p.category}</span>
+        ${p.featured ? '<span class="absolute right-4 top-4 flex items-center gap-2 bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-ink"><span class="pulse-dot h-2 w-2 rounded-full bg-ink" style="animation: pulse-dot 1.4s infinite"></span>Experiencia destacada</span>' : ''}
         <span class="absolute -bottom-6 right-2 font-display font-bold text-[10rem] leading-none text-primary transition-transform duration-500 group-hover:-translate-y-4" aria-hidden="true">0${i + 1}</span>
       </div>
-      <div class="flex flex-1 flex-col gap-5 p-6 md:p-8">
+      <div class="flex flex-1 flex-col gap-5 p-6 md:p-8 ${p.featured ? 'md:justify-center md:p-12' : ''}">
         <div class="flex items-start justify-between gap-4">
-          <h3 class="font-display font-bold text-5xl uppercase leading-none md:text-6xl">${p.title}</h3>
+          <h3 class="font-display font-bold uppercase leading-none ${p.featured ? 'text-6xl md:text-7xl' : 'text-5xl md:text-6xl'}">${p.title}</h3>
           <span class="pt-2 text-xs tracking-widest text-muted">${p.year}</span>
         </div>
-        <p class="leading-relaxed text-muted">${p.description}</p>
+        <p class="leading-relaxed ${p.featured ? 'text-lg text-fg' : 'text-muted'}">${p.description}</p>
         <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
           <ul class="flex flex-wrap gap-2" aria-label="Áreas">${p.stack.map(t => `<li class="bg-soft px-3 py-1.5 text-xs uppercase tracking-widest">${t}</li>`).join('')}</ul>
           <span class="flex h-11 w-11 items-center justify-center bg-primary text-ink transition-transform group-hover:rotate-45" aria-hidden="true">
@@ -876,6 +877,4 @@
   requestAnimationFrame(loop);
 })();
 </script>
-
-</body>
-</html>
+</body></html>
