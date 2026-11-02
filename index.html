@@ -876,4 +876,95 @@
   requestAnimationFrame(loop);
 })();
 </script>
+
+<script>
+/* Tarjeta 3D: red de nodos (redes + hardware + sistemas) que gira y sigue el ratón */
+(function () {
+  const list = document.getElementById('projects');
+  if (!list || !window.THREE) return;
+  const li = document.createElement('li');
+  li.className = 'relative flex min-h-[27rem] overflow-hidden border border-line';
+  li.style.background = '#0f0f0e';
+  li.innerHTML = `
+    <canvas id="net-canvas" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
+    <div class="pointer-events-none relative z-10 flex w-full flex-col justify-between p-6 md:p-8" style="color:#f1f0ea">
+      <span class="self-start px-3 py-1.5 text-xs uppercase tracking-widest" style="background:#f1f0ea;color:#0b0b0b">Mi perfil en 3D</span>
+      <div>
+        <p class="font-display font-bold text-4xl uppercase leading-none md:text-5xl">Redes, hardware<br>y sistemas</p>
+        <p class="mt-3 text-xs uppercase tracking-widest" style="color:#a8a79f"><span id="net-hint">Mueve el cursor para girarlo</span></p>
+      </div>
+    </div>`;
+  list.appendChild(li);
+  if (matchMedia('(hover: none)').matches) li.querySelector('#net-hint').textContent = 'Se mueve solo';
+
+  const canvas = li.querySelector('canvas');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50);
+  camera.position.set(0, 0, 7);
+  const RED = 0xff3b3b, LIGHT = 0xf1f0ea;
+
+  const group = new THREE.Group();
+  scene.add(group);
+  const geo = new THREE.IcosahedronGeometry(2, 1);
+  group.add(new THREE.LineSegments(new THREE.WireframeGeometry(geo), new THREE.LineBasicMaterial({ color: LIGHT, transparent: true, opacity: 0.35 })));
+  const nodeGeo = new THREE.SphereGeometry(0.06, 12, 12);
+  const seen = new Set(), nodes = [];
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const k = [pos.getX(i), pos.getY(i), pos.getZ(i)].map(v => v.toFixed(3)).join();
+    if (seen.has(k)) continue; seen.add(k);
+    const m = new THREE.Mesh(nodeGeo, new THREE.MeshBasicMaterial({ color: nodes.length % 5 === 0 ? RED : LIGHT }));
+    m.position.set(pos.getX(i), pos.getY(i), pos.getZ(i));
+    group.add(m); nodes.push(m);
+  }
+  const core = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), new THREE.MeshBasicMaterial({ color: RED, wireframe: true }));
+  group.add(core);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.7, 0.012, 8, 120), new THREE.MeshBasicMaterial({ color: RED }));
+  ring.rotation.x = Math.PI / 2.4;
+  scene.add(ring);
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const target = { x: 0, y: 0 };
+  li.addEventListener('pointermove', e => {
+    const r = li.getBoundingClientRect();
+    target.y = ((e.clientX - r.left) / r.width - 0.5) * 2;
+    target.x = ((e.clientY - r.top) / r.height - 0.5) * 2;
+  });
+  li.addEventListener('pointerleave', () => { target.x = 0; target.y = 0; });
+
+  function resize() {
+    const w = li.clientWidth, h = li.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    const s = w > 600 ? 0.85 : 0.72;
+    group.position.set(0, 0.75, 0); ring.position.copy(group.position);
+    group.scale.setScalar(s); ring.scale.setScalar(s);
+  }
+  new ResizeObserver(resize).observe(li); resize();
+
+  let running = true, t = 0, last = performance.now();
+  function frame(now) {
+    if (!running) return;
+    const dt = Math.min((now - last) / 1000, 0.05); last = now;
+    if (!reduce) t += dt;
+    group.rotation.y += (t * 0.35 + target.y * 1.2 - group.rotation.y) * 0.06;
+    group.rotation.x += (target.x * 0.8 - group.rotation.x) * 0.06;
+    core.rotation.x = t * 0.9; core.rotation.y = t * 1.3;
+    ring.rotation.z = t * 0.5;
+    const p = 1 + Math.sin(t * 2) * 0.08;
+    nodes.forEach((n, i) => n.scale.setScalar(i % 5 === 0 ? p * 1.5 : 1));
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  new IntersectionObserver(es => {
+    const v = es[0].isIntersecting;
+    if (v && !running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
+    else if (!v) running = false;
+  }).observe(li);
+  requestAnimationFrame(frame);
+})();
+</script>
 </body></html>
